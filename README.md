@@ -2,4 +2,4 @@
 WebDev &amp; Software for Hardware
 
 npm install
-npm run deev
+npm run dev
