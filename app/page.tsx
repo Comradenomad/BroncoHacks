@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useState } from "react"
 import { Bar } from "react-chartjs-2"
 import {
   BarElement,
@@ -19,10 +19,6 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend)
 
 export default function LandingPage() {
   const [events, setEvents] = useState<any[]>([])
-  const heroRef = useRef<HTMLElement | null>(null)
-  const frameRef = useRef<number | null>(null)
-  const targetRef = useRef({ x: 0, y: 0 })
-  const currentRef = useRef({ x: 0, y: 0 })
 
   useEffect(() => {
     let isActive = true
@@ -52,67 +48,17 @@ export default function LandingPage() {
     }
   }, [])
 
-  useEffect(() => {
-    const hero = heroRef.current
-    if (!hero) return
-
-    const isMobile = window.innerWidth < 768
-    if (isMobile) return
-
-    const backgroundLayer = hero.querySelector<HTMLElement>("[data-layer='bg']")
-    const midLayer = hero.querySelector<HTMLElement>("[data-layer='mid']")
-    const frontLayer = hero.querySelector<HTMLElement>("[data-layer='front']")
-
-    const animate = () => {
-      currentRef.current.x += (targetRef.current.x - currentRef.current.x) * 0.08
-      currentRef.current.y += (targetRef.current.y - currentRef.current.y) * 0.08
-
-      const x = currentRef.current.x
-      const y = currentRef.current.y
-
-      if (backgroundLayer) {
-        backgroundLayer.style.transform = `translate(${x * 0.02}px, ${y * 0.02}px) scale(1.05)`
-      }
-
-      if (midLayer) {
-        midLayer.style.transform = `translate(${x * 0.05}px, ${y * 0.05}px) rotate(6deg)`
-      }
-
-      if (frontLayer) {
-        frontLayer.style.transform = `translate(${x * 0.1}px, ${y * 0.1}px) rotate(-6deg)`
-      }
-
-      frameRef.current = requestAnimationFrame(animate)
-    }
-
-    const handleMouseMove = (event: MouseEvent) => {
-      const rect = hero.getBoundingClientRect()
-      const offsetX = event.clientX - (rect.left + rect.width / 2)
-      const offsetY = event.clientY - (rect.top + rect.height / 2)
-
-      targetRef.current.x = offsetX
-      targetRef.current.y = offsetY
-    }
-
-    const handleMouseLeave = () => {
-      targetRef.current.x = 0
-      targetRef.current.y = 0
-    }
-
-    hero.addEventListener("mousemove", handleMouseMove)
-    hero.addEventListener("mouseleave", handleMouseLeave)
-    frameRef.current = requestAnimationFrame(animate)
-
-    return () => {
-      hero.removeEventListener("mousemove", handleMouseMove)
-      hero.removeEventListener("mouseleave", handleMouseLeave)
-      if (frameRef.current) {
-        cancelAnimationFrame(frameRef.current)
-      }
-    }
-  }, [])
-
   const latestEvent = events.length > 0 ? events[0] : null
+  const heroItems =
+    events.length > 0
+      ? events.slice(0, 5)
+      : Array.from({ length: 5 }, (_, index) => ({
+          image: "",
+          item_type: "No scan yet",
+          confidence: 0,
+          id: `placeholder-${index}`,
+        }))
+  const loopItems = [...heroItems, ...heroItems]
 
   const eventCounts = events.reduce(
     (acc, event) => {
@@ -188,14 +134,8 @@ export default function LandingPage() {
       </header>
 
       {/* Hero Section */}
-      <section
-        ref={heroRef}
-        className="relative min-h-screen flex items-center justify-center overflow-hidden"
-      >
-        <div
-          data-layer="bg"
-          className="absolute inset-0 z-0 will-change-transform transition-transform duration-200 md:scale-105"
-        >
+      <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+        <div className="absolute inset-0 z-0">
           <img
             src="/hero-background.png"
             alt="Recycling background"
@@ -204,20 +144,38 @@ export default function LandingPage() {
           <div className="absolute inset-0 bg-black/45" />
         </div>
 
-        <div className="absolute inset-0 z-10 pointer-events-none">
-          <div className="relative h-full w-full max-w-7xl mx-auto">
-            <img
-              data-layer="mid"
-              src="/hero-foreground-bottom.png"
-              alt="Bushes foreground"
-              className="absolute bottom-0 left-1/2 z-10 w-[250px] -translate-x-1/2 rotate-[1deg] rounded-3xl shadow-[0_24px_70px_rgba(0,0,0,0.28)] transition-transform duration-300 hover:scale-105 sm:w-[320px] md:w-[420px] lg:bottom-2 lg:left-[24%] lg:w-[520px] lg:-translate-x-0 lg:rotate-[3deg]"
-            />
-            <img
-              data-layer="front"
-              src="/hero-foreground-top.png"
-              alt="Leaves foreground"
-              className="absolute top-24 right-4 z-20 w-[170px] rotate-[-2deg] rounded-3xl shadow-[0_35px_90px_rgba(0,0,0,0.35)] transition-transform duration-300 hover:scale-105 sm:top-28 sm:right-8 sm:w-[220px] md:top-24 md:right-12 md:w-[280px] lg:top-20 lg:right-[10%] lg:w-[340px] lg:rotate-[-6deg]"
-            />
+        <div className="absolute inset-x-0 bottom-8 z-20 overflow-hidden md:bottom-12">
+          <div className="carousel-mask">
+            <div className="carousel-track">
+              {loopItems.map((event, index) => (
+                <div
+                  key={`${event.id || event._id || event.scan_id || index}-${index}`}
+                  className={`scan-card ${index % 2 === 0 ? "tilt-left" : "tilt-right"} ${
+                    index % 5 === 2 ? "featured" : "side"
+                  }`}
+                >
+                  <div className="scan-image-wrap">
+                    {event.image ? (
+                      <img
+                        src={`data:image/jpeg;base64,${event.image}`}
+                        alt={event.item_type || "Trash scan"}
+                        className="scan-image"
+                      />
+                    ) : (
+                      <div className="scan-placeholder">Waiting for scan</div>
+                    )}
+                  </div>
+                  <div className="scan-meta">
+                    <p className="scan-type">{event.item_type || "Unknown item"}</p>
+                    {event.confidence ? (
+                      <p className="scan-confidence">
+                        {Math.round((event.confidence || 0) * 100)}% confidence
+                      </p>
+                    ) : null}
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 
@@ -252,6 +210,169 @@ export default function LandingPage() {
             </div>
           </div>
         </div>
+
+        <style jsx>{`
+          .carousel-mask {
+            position: relative;
+            overflow: hidden;
+            padding: 1rem 0;
+            mask-image: linear-gradient(
+              to right,
+              transparent 0%,
+              rgba(0, 0, 0, 1) 12%,
+              rgba(0, 0, 0, 1) 88%,
+              transparent 100%
+            );
+            -webkit-mask-image: linear-gradient(
+              to right,
+              transparent 0%,
+              rgba(0, 0, 0, 1) 12%,
+              rgba(0, 0, 0, 1) 88%,
+              transparent 100%
+            );
+          }
+
+          .carousel-track {
+            display: flex;
+            align-items: flex-end;
+            gap: 1.25rem;
+            width: max-content;
+            animation: hero-carousel 20s linear infinite;
+            will-change: transform;
+          }
+
+          .scan-card {
+            width: 180px;
+            flex: 0 0 auto;
+            border-radius: 1.5rem;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.14);
+            backdrop-filter: blur(12px);
+            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.28);
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            transition: transform 0.3s ease;
+          }
+
+          .scan-card:hover {
+            transform: translateY(-6px) scale(1.04);
+          }
+
+          .scan-card.featured {
+            transform: scale(1.04);
+          }
+
+          .scan-card.side {
+            transform: scale(0.94);
+            opacity: 0.92;
+          }
+
+          .scan-card.tilt-left {
+            rotate: -3deg;
+          }
+
+          .scan-card.tilt-right {
+            rotate: 3deg;
+          }
+
+          .scan-image-wrap {
+            width: 100%;
+            height: 170px;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.08);
+          }
+
+          .scan-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+          }
+
+          .scan-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.95rem;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.03));
+          }
+
+          .scan-meta {
+            padding: 0.9rem 1rem 1rem;
+            text-align: center;
+          }
+
+          .scan-type {
+            color: white;
+            font-weight: 700;
+            text-transform: capitalize;
+            line-height: 1.2;
+          }
+
+          .scan-confidence {
+            margin-top: 0.35rem;
+            color: rgba(255, 255, 255, 0.75);
+            font-size: 0.82rem;
+          }
+
+          @keyframes hero-carousel {
+            from {
+              transform: translateX(0);
+            }
+            to {
+              transform: translateX(calc(-50% - 0.625rem));
+            }
+          }
+
+          @media (max-width: 767px) {
+            .carousel-mask {
+              padding: 0.5rem 0;
+            }
+
+            .carousel-track {
+              gap: 0.85rem;
+              animation-duration: 18s;
+            }
+
+            .scan-card {
+              width: 128px;
+              border-radius: 1.1rem;
+            }
+
+            .scan-image-wrap {
+              height: 118px;
+            }
+
+            .scan-card.featured,
+            .scan-card.side {
+              transform: scale(0.96);
+            }
+
+            .scan-card.tilt-left {
+              rotate: -1.5deg;
+            }
+
+            .scan-card.tilt-right {
+              rotate: 1.5deg;
+            }
+
+            .scan-meta {
+              padding: 0.7rem 0.75rem 0.85rem;
+            }
+
+            .scan-type {
+              font-size: 0.9rem;
+            }
+
+            .scan-confidence {
+              font-size: 0.75rem;
+            }
+          }
+        `}</style>
       </section>
 
       {/* Features Section */}
