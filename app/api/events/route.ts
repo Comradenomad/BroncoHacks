@@ -26,7 +26,7 @@ export async function GET() {
       .collection<RawEvent>("events")
       .find({})
       .sort({ timestamp: -1, createdAt: -1, scannedAt: -1, _id: -1 })
-      .limit(10)
+      .limit(200)
       .toArray()
 
     const events = rawEvents.map((event, index) => ({
