@@ -127,7 +127,7 @@ export default function LandingPage() {
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 z-0">
           <img
-            src="/hero-background.jpg"
+            src="/hero-background.png"
             alt="Recycling background"
             className="h-full w-full object-cover opacity-85"
           />
@@ -137,12 +137,12 @@ export default function LandingPage() {
         <div className="absolute inset-0 z-10 pointer-events-none">
           <div className="relative h-full w-full max-w-7xl mx-auto">
             <img
-              src="/hero-foreground-bottom.jpg"
+              src="/hero-foreground-bottom.png"
               alt="Smart bin preview"
               className="absolute bottom-10 left-1/2 w-[260px] -translate-x-[95%] translate-y-4 rotate-[3deg] rounded-3xl shadow-2xl transition-transform duration-300 hover:scale-105 sm:w-[320px] sm:rotate-[5deg] lg:bottom-16 lg:left-[18%] lg:w-[360px] lg:translate-x-0 lg:rotate-[6deg] z-10"
             />
             <img
-              src="/hero-foreground-top.jpg"
+              src="/hero-foreground-top.png"
               alt="Analytics preview"
               className="absolute bottom-44 left-1/2 w-[250px] -translate-x-[5%] -translate-y-2 -rotate-[4deg] rounded-3xl shadow-2xl transition-transform duration-300 hover:scale-105 sm:w-[310px] sm:-rotate-[6deg] lg:bottom-28 lg:left-auto lg:right-[14%] lg:w-[380px] lg:translate-x-0 lg:-rotate-[8deg] z-20"
             />
