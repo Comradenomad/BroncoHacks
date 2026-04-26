@@ -1,115 +1,65 @@
 import { NextResponse } from "next/server"
+import { auth } from "@/lib/auth"
 import { getDatabase } from "@/lib/mongodb"
 
 export async function GET() {
   try {
+    const session = await auth()
+    if (!session?.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
     const db = await getDatabase()
 
-    // Get material breakdown
-    const materialStats = await db
-      .collection("recycling_entries")
-      .aggregate([
-        {
-          $group: {
-            _id: "$material",
-            totalWeight: { $sum: "$weight" },
-            totalPoints: { $sum: "$points" },
-            count: { $sum: 1 },
-          },
-        },
-      ])
-      .toArray()
-
-    // Get weekly data for charts
     const sevenDaysAgo = new Date()
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
 
-    const weeklyData = await db
-      .collection("recycling_entries")
-      .aggregate([
-        {
-          $match: {
-            createdAt: { $gte: sevenDaysAgo },
-          },
-        },
-        {
-          $group: {
-            _id: {
-              $dateToString: { format: "%Y-%m-%d", date: "$createdAt" },
-            },
-            totalWeight: { $sum: "$weight" },
-            totalPoints: { $sum: "$points" },
-          },
-        },
-        { $sort: { _id: 1 } },
-      ])
-      .toArray()
-
-    // Get monthly data
     const thirtyDaysAgo = new Date()
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
 
-    const monthlyData = await db
-      .collection("recycling_entries")
-      .aggregate([
-        {
-          $match: {
-            createdAt: { $gte: thirtyDaysAgo },
-          },
-        },
-        {
-          $group: {
-            _id: {
-              $dateToString: { format: "%Y-%m-%d", date: "$createdAt" },
-            },
-            totalWeight: { $sum: "$weight" },
-            totalPoints: { $sum: "$points" },
-          },
-        },
-        { $sort: { _id: 1 } },
-      ])
-      .toArray()
+    const [categoryBreakdown, weeklyData, monthlyData, totalStats, user] = await Promise.all([
+      db.collection("events").aggregate([
+        { $match: { userId: session.user.id } },
+        { $group: { _id: "$item_type", count: { $sum: 1 } } },
+      ]).toArray(),
 
-    // Get total stats
-    const totalStats = await db
-      .collection("recycling_entries")
-      .aggregate([
-        {
-          $group: {
-            _id: null,
-            totalWeight: { $sum: "$weight" },
-            totalPoints: { $sum: "$points" },
-            totalEntries: { $sum: 1 },
-          },
-        },
-      ])
-      .toArray()
+      db.collection("events").aggregate([
+        { $match: { userId: session.user.id, timestamp: { $gte: sevenDaysAgo } } },
+        { $group: { _id: { $dateToString: { format: "%Y-%m-%d", date: "$timestamp" } }, count: { $sum: 1 } } },
+        { $sort: { _id: 1 } },
+      ]).toArray(),
+
+      db.collection("events").aggregate([
+        { $match: { userId: session.user.id, timestamp: { $gte: thirtyDaysAgo } } },
+        { $group: { _id: { $dateToString: { format: "%Y-%m-%d", date: "$timestamp" } }, count: { $sum: 1 } } },
+        { $sort: { _id: 1 } },
+      ]).toArray(),
+
+      db.collection("events").aggregate([
+        { $match: { userId: session.user.id } },
+        { $group: { _id: null, totalItems: { $sum: 1 } } },
+      ]).toArray(),
+
+      db.collection("users").findOne({ email: session.user.email }),
+    ])
+
+    const totals = totalStats[0] ?? { totalItems: 0 }
 
     return NextResponse.json({
       user: {
-        name: "Demo Viewer",
-        email: "demo@ecorewards.local",
-        points: totalStats[0]?.totalPoints || 0,
+        name: user?.name,
+        email: user?.email,
       },
-      materialStats: materialStats.map((stat) => ({
-        material: stat._id,
-        totalWeight: stat.totalWeight,
-        totalPoints: stat.totalPoints,
-        count: stat.count,
-      })),
+      totalItems: totals.totalItems,
+      categoryBreakdown: categoryBreakdown.reduce((accumulator: Record<string, { count: number }>, category: any) => {
+        accumulator[category._id] = { count: category.count }
+        return accumulator
+      }, {}),
       weeklyData,
       monthlyData,
-      totalStats: totalStats[0] || {
-        totalWeight: 0,
-        totalPoints: 0,
-        totalEntries: 0,
-      },
     })
   } catch (error) {
-    console.error("Error fetching stats:", error)
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    )
+    console.error("Error in /api/stats:", error)
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
 }

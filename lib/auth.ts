@@ -58,7 +58,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             image: user.image,
             provider: "google",
             role: "user",
-            points: 0,
+            balance: 0,
             createdAt: new Date(),
           })
         }
