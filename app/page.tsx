@@ -19,6 +19,7 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend)
 
 export default function LandingPage() {
   const [events, setEvents] = useState<any[]>([])
+  const [eventCounts, setEventCounts] = useState({ recycle: 0, trash: 0, compost: 0 })
 
   useEffect(() => {
     let isActive = true
@@ -27,25 +28,34 @@ export default function LandingPage() {
       try {
         const response = await fetch("/api/events")
         const data = await response.json()
-
         if (!isActive) return
-
         const nextEvents = Array.isArray(data) ? data : data?.events
         setEvents(Array.isArray(nextEvents) ? nextEvents : [])
       } catch {
-        if (isActive) {
-          setEvents([])
-        }
+        if (isActive) setEvents([])
       }
     }
 
     loadEvents()
     const interval = setInterval(loadEvents, 2000)
+    return () => { isActive = false; clearInterval(interval) }
+  }, [])
 
-    return () => {
-      isActive = false
-      clearInterval(interval)
+  useEffect(() => {
+    let isActive = true
+
+    const loadCounts = async () => {
+      try {
+        const response = await fetch("/api/events/count")
+        const data = await response.json()
+        if (!isActive) return
+        if (data.counts) setEventCounts(data.counts)
+      } catch {}
     }
+
+    loadCounts()
+    const interval = setInterval(loadCounts, 5000)
+    return () => { isActive = false; clearInterval(interval) }
   }, [])
 
   const latestEvent = events.length > 0 ? events[0] : null
@@ -59,17 +69,6 @@ export default function LandingPage() {
           id: `placeholder-${index}`,
         }))
   const loopItems = [...heroItems, ...heroItems, ...heroItems, ...heroItems]
-
-  const eventCounts = events.reduce(
-    (acc, event) => {
-      const itemType = event?.item_type
-      if (itemType === "recycle" || itemType === "trash" || itemType === "compost") {
-        acc[itemType] += 1
-      }
-      return acc
-    },
-    { recycle: 0, trash: 0, compost: 0 }
-  )
 
   const eventChartData = {
     labels: ["Recycle", "Trash", "Compost"],

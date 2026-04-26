@@ -26,10 +26,10 @@ export async function GET() {
       .collection<RawEvent>("events")
       .find({})
       .sort({ timestamp: -1, createdAt: -1, scannedAt: -1, _id: -1 })
-      .limit(200)
+      .limit(5)
       .toArray()
 
-    const events = rawEvents.map((event, index) => ({
+    const events = rawEvents.map((event) => ({
       id: typeof event._id === "string" ? event._id : event._id?.toString(),
       item_type:
         event.item_type ||
@@ -41,7 +41,7 @@ export async function GET() {
       timestamp: normalizeTimestamp(
         event.timestamp ?? event.createdAt ?? event.scannedAt
       ),
-      image: index < 5 ? (event.image || event.imageBase64 || event.encodedImage || "") : "",
+      image: event.image || event.imageBase64 || event.encodedImage || "",
     }))
 
     return NextResponse.json({ events })
