@@ -58,7 +58,7 @@ export default function LandingPage() {
           confidence: 0,
           id: `placeholder-${index}`,
         }))
-  const loopItems = [...heroItems, ...heroItems]
+  const loopItems = [...heroItems, ...heroItems, ...heroItems]
 
   const eventCounts = events.reduce(
     (acc, event) => {
@@ -321,10 +321,10 @@ export default function LandingPage() {
 
           @keyframes hero-carousel-loop {
             from {
-              transform: translateX(0);
+              transform: translateX(-25%);
             }
             to {
-              transform: translateX(calc(-50% - 0.75rem));
+              transform: translateX(-75%);
             }
           }
 
