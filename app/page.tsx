@@ -212,19 +212,16 @@ export default function LandingPage() {
           .hero-carousel-breakout {
             position: relative;
             left: 50%;
-            right: 50%;
             width: 100vw;
-            margin-left: -50vw;
-            margin-right: -50vw;
+            transform: translateX(-50%);
             overflow: hidden;
-            display: flex;
-            justify-content: center;
           }
 
           .hero-carousel-mask {
             width: 100vw;
             overflow: hidden;
             padding: 1rem 0;
+            margin: 0;
             mask-image: linear-gradient(
               to right,
               transparent 0%,
@@ -243,9 +240,12 @@ export default function LandingPage() {
 
           .hero-carousel-track {
             display: flex;
+            justify-content: flex-start;
             align-items: center;
             gap: 1.5rem;
             width: max-content;
+            margin: 0;
+            padding: 0;
             animation: hero-carousel-loop 20s linear infinite;
             will-change: transform;
           }
