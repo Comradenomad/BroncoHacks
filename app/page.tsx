@@ -1,9 +1,43 @@
+"use client"
+
+import { useEffect, useState } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Leaf, Recycle, Trophy, BarChart3, Users, ArrowRight } from "lucide-react"
 
 export default function LandingPage() {
+  const [latestEvent, setLatestEvent] = useState<any | null>(null)
+
+  useEffect(() => {
+    let isActive = true
+
+    const loadLatestEvent = async () => {
+      try {
+        const response = await fetch("/api/events")
+        const data = await response.json()
+
+        if (!isActive) return
+
+        const events = Array.isArray(data) ? data : data?.events
+        const mostRecentEvent = Array.isArray(events) && events.length > 0 ? events[0] : null
+        setLatestEvent(mostRecentEvent)
+      } catch {
+        if (isActive) {
+          setLatestEvent(null)
+        }
+      }
+    }
+
+    loadLatestEvent()
+    const interval = setInterval(loadLatestEvent, 2000)
+
+    return () => {
+      isActive = false
+      clearInterval(interval)
+    }
+  }, [])
+
   return (
     <div className="min-h-screen flex flex-col">
       {/* Header */}
@@ -131,6 +165,51 @@ export default function LandingPage() {
                 </CardContent>
               </Card>
             ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="py-20 bg-card">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-foreground mb-4">Live Smart Bin Feed</h2>
+            <p className="text-muted-foreground">Latest scan streaming in from MongoDB</p>
+          </div>
+          <div className="flex justify-center">
+            <Card className="w-full max-w-2xl rounded-2xl shadow-lg">
+              <CardHeader className="text-center">
+                <CardTitle>Most Recent Scan</CardTitle>
+                <CardDescription>Auto-refreshes every 2 seconds</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {latestEvent ? (
+                  <div className="space-y-4 text-center">
+                    {latestEvent.image ? (
+                      <img
+                        src={`data:image/jpeg;base64,${latestEvent.image}`}
+                        alt={latestEvent.item_type || "Smart bin scan"}
+                        className="mx-auto max-h-80 w-full rounded-xl object-cover"
+                      />
+                    ) : null}
+                    <div className="space-y-2">
+                      <p className="text-lg font-semibold capitalize">
+                        {latestEvent.item_type || "Unknown item"}
+                      </p>
+                      <p className="text-muted-foreground">
+                        Confidence: {Math.round((latestEvent.confidence || 0) * 100)}%
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        {latestEvent.timestamp
+                          ? new Date(latestEvent.timestamp).toLocaleString()
+                          : "Timestamp unavailable"}
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-center text-muted-foreground">Waiting for first scan...</p>
+                )}
+              </CardContent>
+            </Card>
           </div>
         </div>
       </section>
