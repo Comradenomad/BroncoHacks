@@ -365,53 +365,6 @@ export default function LandingPage() {
         `}</style>
       </section>
 
-      {/* Features Section */}
-      <section className="py-20 bg-card">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-foreground mb-4">How It Works</h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
-              Our platform makes it easy to track your recycling and get rewarded for your eco-friendly habits.
-            </p>
-          </div>
-          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            <Card className="border-border">
-              <CardHeader>
-                <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
-                  <Recycle className="h-6 w-6 text-primary" />
-                </div>
-                <CardTitle>Log Your Recycling</CardTitle>
-                <CardDescription>
-                  Record the materials you recycle - plastic, glass, paper, metal, or electronics.
-                </CardDescription>
-              </CardHeader>
-            </Card>
-            <Card className="border-border">
-              <CardHeader>
-                <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
-                  <BarChart3 className="h-6 w-6 text-primary" />
-                </div>
-                <CardTitle>Track Your Impact</CardTitle>
-                <CardDescription>
-                  View detailed charts and statistics showing your environmental contribution over time.
-                </CardDescription>
-              </CardHeader>
-            </Card>
-            <Card className="border-border">
-              <CardHeader>
-                <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
-                  <Trophy className="h-6 w-6 text-primary" />
-                </div>
-                <CardTitle>Earn Rewards</CardTitle>
-                <CardDescription>
-                  Accumulate points based on what you recycle and climb the leaderboard.
-                </CardDescription>
-              </CardHeader>
-            </Card>
-          </div>
-        </div>
-      </section>
-
       <section className="py-20 bg-card">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
@@ -484,6 +437,53 @@ export default function LandingPage() {
                   <p className="text-center text-muted-foreground">Waiting for chart data...</p>
                 )}
               </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section className="py-20 bg-card">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-foreground mb-4">How It Works</h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Our platform makes it easy to track your recycling and get rewarded for your eco-friendly habits.
+            </p>
+          </div>
+          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+            <Card className="border-border">
+              <CardHeader>
+                <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
+                  <Recycle className="h-6 w-6 text-primary" />
+                </div>
+                <CardTitle>Log Your Recycling</CardTitle>
+                <CardDescription>
+                  Record the materials you recycle - plastic, glass, paper, metal, or electronics.
+                </CardDescription>
+              </CardHeader>
+            </Card>
+            <Card className="border-border">
+              <CardHeader>
+                <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
+                  <BarChart3 className="h-6 w-6 text-primary" />
+                </div>
+                <CardTitle>Track Your Impact</CardTitle>
+                <CardDescription>
+                  View detailed charts and statistics showing your environmental contribution over time.
+                </CardDescription>
+              </CardHeader>
+            </Card>
+            <Card className="border-border">
+              <CardHeader>
+                <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
+                  <Trophy className="h-6 w-6 text-primary" />
+                </div>
+                <CardTitle>Earn Rewards</CardTitle>
+                <CardDescription>
+                  Accumulate points based on what you recycle and climb the leaderboard.
+                </CardDescription>
+              </CardHeader>
             </Card>
           </div>
         </div>
