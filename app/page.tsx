@@ -104,32 +104,54 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen flex flex-col">
       {/* Header */}
-      <header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <header className="absolute inset-x-0 top-0 z-40 border-b border-white/10 bg-white/5 backdrop-blur-md">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
-            <Recycle className="h-8 w-8 text-primary" />
-            <span className="text-xl font-bold text-foreground">EcoRewards</span>
+            <Recycle className="h-8 w-8 text-white" />
+            <span className="text-xl font-bold text-white">EcoRewards</span>
           </Link>
           <nav className="flex items-center gap-4">
             <Link href="/login">
-              <Button variant="ghost">Sign In</Button>
+              <Button variant="ghost" className="text-white hover:bg-white/10 hover:text-white">
+                Sign In
+              </Button>
             </Link>
             <Link href="/register">
-              <Button>Get Started</Button>
+              <Button className="bg-white text-foreground hover:bg-white/90">Get Started</Button>
             </Link>
           </nav>
         </div>
       </header>
 
       {/* Hero Section */}
-      <section 
-        className="flex-1 flex items-center py-20 lg:py-32 relative bg-cover bg-center"
-        style={{ backgroundImage: "url('https://picsum.photos/seed/eco-hero/1920/1080')" }}
-      >
-        <div className="absolute inset-0 bg-foreground/70" />
-        <div className="container mx-auto px-4 relative z-10">
+      <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+        <div className="absolute inset-0 z-0">
+          <img
+            src="/hero-background.jpg"
+            alt="Recycling background"
+            className="h-full w-full object-cover opacity-85"
+          />
+          <div className="absolute inset-0 bg-black/45" />
+        </div>
+
+        <div className="absolute inset-0 z-10 pointer-events-none">
+          <div className="relative h-full w-full max-w-7xl mx-auto">
+            <img
+              src="/hero-foreground-bottom.jpg"
+              alt="Smart bin preview"
+              className="absolute bottom-10 left-1/2 w-[260px] -translate-x-[95%] translate-y-4 rotate-[3deg] rounded-3xl shadow-2xl transition-transform duration-300 hover:scale-105 sm:w-[320px] sm:rotate-[5deg] lg:bottom-16 lg:left-[18%] lg:w-[360px] lg:translate-x-0 lg:rotate-[6deg] z-10"
+            />
+            <img
+              src="/hero-foreground-top.jpg"
+              alt="Analytics preview"
+              className="absolute bottom-44 left-1/2 w-[250px] -translate-x-[5%] -translate-y-2 -rotate-[4deg] rounded-3xl shadow-2xl transition-transform duration-300 hover:scale-105 sm:w-[310px] sm:-rotate-[6deg] lg:bottom-28 lg:left-auto lg:right-[14%] lg:w-[380px] lg:translate-x-0 lg:-rotate-[8deg] z-20"
+            />
+          </div>
+        </div>
+
+        <div className="container mx-auto px-4 relative z-30 py-32">
           <div className="max-w-3xl mx-auto text-center">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/20 text-white text-sm font-medium mb-6">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/15 text-white text-sm font-medium mb-6 backdrop-blur-sm">
               <Leaf className="h-4 w-4" />
               Join the sustainability movement
             </div>
@@ -147,7 +169,11 @@ export default function LandingPage() {
                 </Button>
               </Link>
               <Link href="/login">
-                <Button size="lg" variant="outline" className="w-full sm:w-auto">
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="w-full sm:w-auto border-white/40 bg-white/10 text-white backdrop-blur-sm hover:bg-white/20 hover:text-white"
+                >
                   Sign In
                 </Button>
               </Link>
