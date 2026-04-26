@@ -321,10 +321,10 @@ export default function LandingPage() {
 
           @keyframes hero-carousel-loop {
             from {
-              transform: translateX(-25%);
+              transform: translateX(-33.33%);
             }
             to {
-              transform: translateX(-75%);
+              transform: translateX(-66.66%);
             }
           }
 
