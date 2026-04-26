@@ -203,35 +203,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Points System Section */}
-      <section className="py-20">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-foreground mb-4">Points Per Kilogram</h2>
-            <p className="text-muted-foreground">Earn points based on the material type and weight</p>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4 max-w-4xl mx-auto">
-            {[
-              { material: "Plastic", points: 10, color: "bg-blue-100 text-blue-700" },
-              { material: "Glass", points: 8, color: "bg-teal-100 text-teal-700" },
-              { material: "Paper", points: 5, color: "bg-amber-100 text-amber-700" },
-              { material: "Metal", points: 15, color: "bg-slate-100 text-slate-700" },
-              { material: "Electronics", points: 25, color: "bg-orange-100 text-orange-700" },
-            ].map((item) => (
-              <Card key={item.material} className="text-center border-border">
-                <CardContent className="pt-6">
-                  <div className={`inline-flex items-center justify-center h-12 w-12 rounded-full ${item.color} mb-3`}>
-                    <span className="text-lg font-bold">{item.points}</span>
-                  </div>
-                  <p className="font-medium text-foreground">{item.material}</p>
-                  <p className="text-sm text-muted-foreground">pts/kg</p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
       <section className="py-20 bg-card">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
