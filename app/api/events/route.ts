@@ -48,7 +48,13 @@ export async function GET() {
   } catch (error) {
     console.error("Error fetching smart bin events:", error)
     return NextResponse.json(
-      { error: "Failed to fetch smart bin events" },
+      {
+        error: "Failed to fetch smart bin events",
+        details:
+          process.env.NODE_ENV === "development" && error instanceof Error
+            ? error.message
+            : undefined,
+      },
       { status: 500 }
     )
   }
