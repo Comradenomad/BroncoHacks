@@ -1,42 +1,105 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { Bar } from "react-chartjs-2"
+import {
+  BarElement,
+  CategoryScale,
+  Chart as ChartJS,
+  Legend,
+  LinearScale,
+  Tooltip,
+} from "chart.js"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Leaf, Recycle, Trophy, BarChart3, Users, ArrowRight } from "lucide-react"
 
+ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend)
+
 export default function LandingPage() {
-  const [latestEvent, setLatestEvent] = useState<any | null>(null)
+  const [events, setEvents] = useState<any[]>([])
 
   useEffect(() => {
     let isActive = true
 
-    const loadLatestEvent = async () => {
+    const loadEvents = async () => {
       try {
         const response = await fetch("/api/events")
         const data = await response.json()
 
         if (!isActive) return
 
-        const events = Array.isArray(data) ? data : data?.events
-        const mostRecentEvent = Array.isArray(events) && events.length > 0 ? events[0] : null
-        setLatestEvent(mostRecentEvent)
+        const nextEvents = Array.isArray(data) ? data : data?.events
+        setEvents(Array.isArray(nextEvents) ? nextEvents : [])
       } catch {
         if (isActive) {
-          setLatestEvent(null)
+          setEvents([])
         }
       }
     }
 
-    loadLatestEvent()
-    const interval = setInterval(loadLatestEvent, 2000)
+    loadEvents()
+    const interval = setInterval(loadEvents, 2000)
 
     return () => {
       isActive = false
       clearInterval(interval)
     }
   }, [])
+
+  const latestEvent = events.length > 0 ? events[0] : null
+
+  const eventCounts = events.reduce(
+    (acc, event) => {
+      const itemType = event?.item_type
+      if (itemType === "recycle" || itemType === "trash" || itemType === "compost") {
+        acc[itemType] += 1
+      }
+      return acc
+    },
+    { recycle: 0, trash: 0, compost: 0 }
+  )
+
+  const eventChartData = {
+    labels: ["Recycle", "Trash", "Compost"],
+    datasets: [
+      {
+        label: "Detected items",
+        data: [eventCounts.recycle, eventCounts.trash, eventCounts.compost],
+        backgroundColor: [
+          "rgba(34, 197, 94, 0.75)",
+          "rgba(239, 68, 68, 0.75)",
+          "rgba(245, 158, 11, 0.75)",
+        ],
+        borderColor: [
+          "rgb(34, 197, 94)",
+          "rgb(239, 68, 68)",
+          "rgb(245, 158, 11)",
+        ],
+        borderWidth: 2,
+        borderRadius: 10,
+      },
+    ],
+  }
+
+  const eventChartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        display: false,
+      },
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        ticks: {
+          precision: 0,
+        },
+      },
+    },
+  }
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -175,8 +238,8 @@ export default function LandingPage() {
             <h2 className="text-3xl font-bold text-foreground mb-4">Live Smart Bin Feed</h2>
             <p className="text-muted-foreground">Latest scan streaming in from MongoDB</p>
           </div>
-          <div className="flex justify-center">
-            <Card className="w-full max-w-2xl rounded-2xl shadow-lg">
+          <div className="grid gap-8 lg:grid-cols-2 max-w-6xl mx-auto">
+            <Card className="w-full rounded-2xl shadow-lg">
               <CardHeader className="text-center">
                 <CardTitle>Most Recent Scan</CardTitle>
                 <CardDescription>Auto-refreshes every 2 seconds</CardDescription>
@@ -207,6 +270,38 @@ export default function LandingPage() {
                   </div>
                 ) : (
                   <p className="text-center text-muted-foreground">Waiting for first scan...</p>
+                )}
+              </CardContent>
+            </Card>
+
+            <Card className="w-full rounded-2xl shadow-lg">
+              <CardHeader className="text-center">
+                <CardTitle>Live Detection Breakdown</CardTitle>
+                <CardDescription>All MongoDB events grouped by item type</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {events.length > 0 ? (
+                  <div className="space-y-6">
+                    <div className="h-72">
+                      <Bar data={eventChartData} options={eventChartOptions} />
+                    </div>
+                    <div className="grid grid-cols-3 gap-3 text-center">
+                      <div className="rounded-xl border border-border p-4">
+                        <p className="text-2xl font-bold text-green-600">{eventCounts.recycle}</p>
+                        <p className="text-sm text-muted-foreground">Recycle</p>
+                      </div>
+                      <div className="rounded-xl border border-border p-4">
+                        <p className="text-2xl font-bold text-red-500">{eventCounts.trash}</p>
+                        <p className="text-sm text-muted-foreground">Trash</p>
+                      </div>
+                      <div className="rounded-xl border border-border p-4">
+                        <p className="text-2xl font-bold text-amber-500">{eventCounts.compost}</p>
+                        <p className="text-sm text-muted-foreground">Compost</p>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-center text-muted-foreground">Waiting for chart data...</p>
                 )}
               </CardContent>
             </Card>
