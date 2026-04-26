@@ -1,14 +1,17 @@
 "use client"
 
-import { useSession } from "next-auth/react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Settings, User, Mail, Shield } from "lucide-react"
 
 export default function SettingsPage() {
-  const { data: session } = useSession()
-  const user = session?.user
+  const user = {
+    name: "Demo Viewer",
+    email: "demo@ecorewards.local",
+    role: "admin",
+    image: "",
+  }
 
   return (
     <div className="max-w-2xl mx-auto">

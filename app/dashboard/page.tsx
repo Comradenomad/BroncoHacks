@@ -14,9 +14,39 @@ export default function DashboardPage() {
   const { data: stats, isLoading } = useSWR("/api/stats", fetcher)
   const { data: entries } = useSWR("/api/recycling", fetcher)
   const [mounted, setMounted] = useState(false)
+  const [latestEvent, setLatestEvent] = useState<any | null>(null)
 
   useEffect(() => {
     setMounted(true)
+  }, [])
+
+  useEffect(() => {
+    let isActive = true
+
+    const loadLatestEvent = async () => {
+      try {
+        const response = await fetch("/api/events")
+        const data = await response.json()
+
+        if (!isActive) return
+
+        const events = Array.isArray(data) ? data : data?.events
+        const mostRecentEvent = Array.isArray(events) && events.length > 0 ? events[0] : null
+        setLatestEvent(mostRecentEvent)
+      } catch {
+        if (isActive) {
+          setLatestEvent(null)
+        }
+      }
+    }
+
+    loadLatestEvent()
+    const interval = setInterval(loadLatestEvent, 2000)
+
+    return () => {
+      isActive = false
+      clearInterval(interval)
+    }
   }, [])
 
   if (!mounted || isLoading) {
@@ -131,6 +161,43 @@ export default function DashboardPage() {
           <RecentEntries entries={entries || []} />
         </CardContent>
       </Card>
+
+      <section className="flex justify-center">
+        <Card className="w-full max-w-2xl rounded-2xl shadow-lg">
+          <CardHeader className="text-center">
+            <CardTitle>Live Smart Bin Feed</CardTitle>
+            <CardDescription>Most recent scan from the smart bin</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {latestEvent ? (
+              <div className="space-y-4 text-center">
+                {latestEvent.image ? (
+                  <img
+                    src={`data:image/jpeg;base64,${latestEvent.image}`}
+                    alt={latestEvent.item_type || "Smart bin scan"}
+                    className="mx-auto max-h-80 w-full rounded-xl object-cover"
+                  />
+                ) : null}
+                <div className="space-y-2">
+                  <p className="text-lg font-semibold capitalize">
+                    {latestEvent.item_type || "Unknown item"}
+                  </p>
+                  <p className="text-muted-foreground">
+                    Confidence: {Math.round((latestEvent.confidence || 0) * 100)}%
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    {latestEvent.timestamp
+                      ? new Date(latestEvent.timestamp).toLocaleString()
+                      : "Timestamp unavailable"}
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <p className="text-center text-muted-foreground">Waiting for first scan...</p>
+            )}
+          </CardContent>
+        </Card>
+      </section>
     </div>
   )
 }

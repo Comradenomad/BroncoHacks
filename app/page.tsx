@@ -1,38 +1,229 @@
+"use client"
+
+import { useEffect, useRef, useState } from "react"
+import { Bar } from "react-chartjs-2"
+import {
+  BarElement,
+  CategoryScale,
+  Chart as ChartJS,
+  Legend,
+  LinearScale,
+  Tooltip,
+} from "chart.js"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Leaf, Recycle, Trophy, BarChart3, Users, ArrowRight } from "lucide-react"
 
+ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend)
+
 export default function LandingPage() {
+  const [events, setEvents] = useState<any[]>([])
+  const heroRef = useRef<HTMLElement | null>(null)
+  const frameRef = useRef<number | null>(null)
+  const targetRef = useRef({ x: 0, y: 0 })
+  const currentRef = useRef({ x: 0, y: 0 })
+
+  useEffect(() => {
+    let isActive = true
+
+    const loadEvents = async () => {
+      try {
+        const response = await fetch("/api/events")
+        const data = await response.json()
+
+        if (!isActive) return
+
+        const nextEvents = Array.isArray(data) ? data : data?.events
+        setEvents(Array.isArray(nextEvents) ? nextEvents : [])
+      } catch {
+        if (isActive) {
+          setEvents([])
+        }
+      }
+    }
+
+    loadEvents()
+    const interval = setInterval(loadEvents, 2000)
+
+    return () => {
+      isActive = false
+      clearInterval(interval)
+    }
+  }, [])
+
+  useEffect(() => {
+    const hero = heroRef.current
+    if (!hero) return
+
+    const isMobile = window.innerWidth < 768
+    if (isMobile) return
+
+    const backgroundLayer = hero.querySelector<HTMLElement>("[data-layer='bg']")
+    const midLayer = hero.querySelector<HTMLElement>("[data-layer='mid']")
+    const frontLayer = hero.querySelector<HTMLElement>("[data-layer='front']")
+
+    const animate = () => {
+      currentRef.current.x += (targetRef.current.x - currentRef.current.x) * 0.08
+      currentRef.current.y += (targetRef.current.y - currentRef.current.y) * 0.08
+
+      const x = currentRef.current.x
+      const y = currentRef.current.y
+
+      if (backgroundLayer) {
+        backgroundLayer.style.transform = `translate(${x * 0.02}px, ${y * 0.02}px) scale(1.05)`
+      }
+
+      if (midLayer) {
+        midLayer.style.transform = `translate(${x * 0.05}px, ${y * 0.05}px) rotate(6deg)`
+      }
+
+      if (frontLayer) {
+        frontLayer.style.transform = `translate(${x * 0.1}px, ${y * 0.1}px) rotate(-6deg)`
+      }
+
+      frameRef.current = requestAnimationFrame(animate)
+    }
+
+    const handleMouseMove = (event: MouseEvent) => {
+      const rect = hero.getBoundingClientRect()
+      const offsetX = event.clientX - (rect.left + rect.width / 2)
+      const offsetY = event.clientY - (rect.top + rect.height / 2)
+
+      targetRef.current.x = offsetX
+      targetRef.current.y = offsetY
+    }
+
+    const handleMouseLeave = () => {
+      targetRef.current.x = 0
+      targetRef.current.y = 0
+    }
+
+    hero.addEventListener("mousemove", handleMouseMove)
+    hero.addEventListener("mouseleave", handleMouseLeave)
+    frameRef.current = requestAnimationFrame(animate)
+
+    return () => {
+      hero.removeEventListener("mousemove", handleMouseMove)
+      hero.removeEventListener("mouseleave", handleMouseLeave)
+      if (frameRef.current) {
+        cancelAnimationFrame(frameRef.current)
+      }
+    }
+  }, [])
+
+  const latestEvent = events.length > 0 ? events[0] : null
+
+  const eventCounts = events.reduce(
+    (acc, event) => {
+      const itemType = event?.item_type
+      if (itemType === "recycle" || itemType === "trash" || itemType === "compost") {
+        acc[itemType] += 1
+      }
+      return acc
+    },
+    { recycle: 0, trash: 0, compost: 0 }
+  )
+
+  const eventChartData = {
+    labels: ["Recycle", "Trash", "Compost"],
+    datasets: [
+      {
+        label: "Detected items",
+        data: [eventCounts.recycle, eventCounts.trash, eventCounts.compost],
+        backgroundColor: [
+          "rgba(34, 197, 94, 0.75)",
+          "rgba(239, 68, 68, 0.75)",
+          "rgba(245, 158, 11, 0.75)",
+        ],
+        borderColor: [
+          "rgb(34, 197, 94)",
+          "rgb(239, 68, 68)",
+          "rgb(245, 158, 11)",
+        ],
+        borderWidth: 2,
+        borderRadius: 10,
+      },
+    ],
+  }
+
+  const eventChartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        display: false,
+      },
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        ticks: {
+          precision: 0,
+        },
+      },
+    },
+  }
+
   return (
     <div className="min-h-screen flex flex-col">
       {/* Header */}
-      <header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <header className="absolute inset-x-0 top-0 z-40 border-b border-white/10 bg-white/5 backdrop-blur-md">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
-            <Recycle className="h-8 w-8 text-primary" />
-            <span className="text-xl font-bold text-foreground">EcoRewards</span>
+            <Recycle className="h-8 w-8 text-white" />
+            <span className="text-xl font-bold text-white">EcoRewards</span>
           </Link>
           <nav className="flex items-center gap-4">
             <Link href="/login">
-              <Button variant="ghost">Sign In</Button>
+              <Button variant="ghost" className="text-white hover:bg-white/10 hover:text-white">
+                Sign In
+              </Button>
             </Link>
             <Link href="/register">
-              <Button>Get Started</Button>
+              <Button className="bg-white text-foreground hover:bg-white/90">Get Started</Button>
             </Link>
           </nav>
         </div>
       </header>
 
       {/* Hero Section */}
-      <section 
-        className="flex-1 flex items-center py-20 lg:py-32 relative bg-cover bg-center"
-        style={{ backgroundImage: "url('https://picsum.photos/seed/eco-hero/1920/1080')" }}
+      <section
+        ref={heroRef}
+        className="relative min-h-screen flex items-center justify-center overflow-hidden"
       >
-        <div className="absolute inset-0 bg-foreground/70" />
-        <div className="container mx-auto px-4 relative z-10">
+        <div
+          data-layer="bg"
+          className="absolute inset-0 z-0 will-change-transform transition-transform duration-200 md:scale-105"
+        >
+          <img
+            src="/hero-background.png"
+            alt="Recycling background"
+            className="h-full w-full object-cover opacity-85"
+          />
+          <div className="absolute inset-0 bg-black/45" />
+        </div>
+
+        <div className="absolute inset-0 z-10 pointer-events-none">
+          <div className="relative h-full w-full max-w-7xl mx-auto">
+            <img
+              data-layer="mid"
+              src="/hero-foreground-bottom.png"
+              alt="Bushes foreground"
+              className="absolute bottom-0 left-1/2 z-10 w-[250px] -translate-x-1/2 rotate-[1deg] rounded-3xl shadow-[0_24px_70px_rgba(0,0,0,0.28)] transition-transform duration-300 hover:scale-105 sm:w-[320px] md:w-[420px] lg:bottom-2 lg:left-[24%] lg:w-[520px] lg:-translate-x-0 lg:rotate-[3deg]"
+            />
+            <img
+              data-layer="front"
+              src="/hero-foreground-top.png"
+              alt="Leaves foreground"
+              className="absolute top-24 right-4 z-20 w-[170px] rotate-[-2deg] rounded-3xl shadow-[0_35px_90px_rgba(0,0,0,0.35)] transition-transform duration-300 hover:scale-105 sm:top-28 sm:right-8 sm:w-[220px] md:top-24 md:right-12 md:w-[280px] lg:top-20 lg:right-[10%] lg:w-[340px] lg:rotate-[-6deg]"
+            />
+          </div>
+        </div>
+
+        <div className="container mx-auto px-4 relative z-30 py-32">
           <div className="max-w-3xl mx-auto text-center">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/20 text-white text-sm font-medium mb-6">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/15 text-white text-sm font-medium mb-6 backdrop-blur-sm">
               <Leaf className="h-4 w-4" />
               Join the sustainability movement
             </div>
@@ -50,7 +241,11 @@ export default function LandingPage() {
                 </Button>
               </Link>
               <Link href="/login">
-                <Button size="lg" variant="outline" className="w-full sm:w-auto">
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="w-full sm:w-auto border-white/40 bg-white/10 text-white backdrop-blur-sm hover:bg-white/20 hover:text-white"
+                >
                   Sign In
                 </Button>
               </Link>
@@ -106,31 +301,79 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Points System Section */}
-      <section className="py-20">
+      <section className="py-20 bg-card">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-foreground mb-4">Points Per Kilogram</h2>
-            <p className="text-muted-foreground">Earn points based on the material type and weight</p>
+            <h2 className="text-3xl font-bold text-foreground mb-4">Live Smart Bin Feed</h2>
+            <p className="text-muted-foreground">Latest scan streaming in from MongoDB</p>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4 max-w-4xl mx-auto">
-            {[
-              { material: "Plastic", points: 10, color: "bg-blue-100 text-blue-700" },
-              { material: "Glass", points: 8, color: "bg-teal-100 text-teal-700" },
-              { material: "Paper", points: 5, color: "bg-amber-100 text-amber-700" },
-              { material: "Metal", points: 15, color: "bg-slate-100 text-slate-700" },
-              { material: "Electronics", points: 25, color: "bg-orange-100 text-orange-700" },
-            ].map((item) => (
-              <Card key={item.material} className="text-center border-border">
-                <CardContent className="pt-6">
-                  <div className={`inline-flex items-center justify-center h-12 w-12 rounded-full ${item.color} mb-3`}>
-                    <span className="text-lg font-bold">{item.points}</span>
+          <div className="grid gap-8 lg:grid-cols-2 max-w-6xl mx-auto">
+            <Card className="w-full rounded-2xl shadow-lg">
+              <CardHeader className="text-center">
+                <CardTitle>Most Recent Scan</CardTitle>
+                <CardDescription>Auto-refreshes every 2 seconds</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {latestEvent ? (
+                  <div className="space-y-4 text-center">
+                    {latestEvent.image ? (
+                      <img
+                        src={`data:image/jpeg;base64,${latestEvent.image}`}
+                        alt={latestEvent.item_type || "Smart bin scan"}
+                        className="mx-auto max-h-80 w-full rounded-xl object-cover"
+                      />
+                    ) : null}
+                    <div className="space-y-2">
+                      <p className="text-lg font-semibold capitalize">
+                        {latestEvent.item_type || "Unknown item"}
+                      </p>
+                      <p className="text-muted-foreground">
+                        Confidence: {Math.round((latestEvent.confidence || 0) * 100)}%
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        {latestEvent.timestamp
+                          ? new Date(latestEvent.timestamp).toLocaleString()
+                          : "Timestamp unavailable"}
+                      </p>
+                    </div>
                   </div>
-                  <p className="font-medium text-foreground">{item.material}</p>
-                  <p className="text-sm text-muted-foreground">pts/kg</p>
-                </CardContent>
-              </Card>
-            ))}
+                ) : (
+                  <p className="text-center text-muted-foreground">Waiting for first scan...</p>
+                )}
+              </CardContent>
+            </Card>
+
+            <Card className="w-full rounded-2xl shadow-lg">
+              <CardHeader className="text-center">
+                <CardTitle>Live Detection Breakdown</CardTitle>
+                <CardDescription>All MongoDB events grouped by item type</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {events.length > 0 ? (
+                  <div className="space-y-6">
+                    <div className="h-72">
+                      <Bar data={eventChartData} options={eventChartOptions} />
+                    </div>
+                    <div className="grid grid-cols-3 gap-3 text-center">
+                      <div className="rounded-xl border border-border p-4">
+                        <p className="text-2xl font-bold text-green-600">{eventCounts.recycle}</p>
+                        <p className="text-sm text-muted-foreground">Recycle</p>
+                      </div>
+                      <div className="rounded-xl border border-border p-4">
+                        <p className="text-2xl font-bold text-red-500">{eventCounts.trash}</p>
+                        <p className="text-sm text-muted-foreground">Trash</p>
+                      </div>
+                      <div className="rounded-xl border border-border p-4">
+                        <p className="text-2xl font-bold text-amber-500">{eventCounts.compost}</p>
+                        <p className="text-sm text-muted-foreground">Compost</p>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-center text-muted-foreground">Waiting for chart data...</p>
+                )}
+              </CardContent>
+            </Card>
           </div>
         </div>
       </section>

@@ -1,26 +1,14 @@
 import { NextResponse } from "next/server"
-import { auth } from "@/lib/auth"
 import { getDatabase } from "@/lib/mongodb"
 
 export async function GET() {
   try {
-    const session = await auth()
-    if (!session?.user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-    }
-
     const db = await getDatabase()
-
-    // Get user stats
-    const user = await db.collection("users").findOne({
-      email: session.user.email,
-    })
 
     // Get material breakdown
     const materialStats = await db
       .collection("recycling_entries")
       .aggregate([
-        { $match: { userId: session.user.id } },
         {
           $group: {
             _id: "$material",
@@ -41,7 +29,6 @@ export async function GET() {
       .aggregate([
         {
           $match: {
-            userId: session.user.id,
             createdAt: { $gte: sevenDaysAgo },
           },
         },
@@ -67,7 +54,6 @@ export async function GET() {
       .aggregate([
         {
           $match: {
-            userId: session.user.id,
             createdAt: { $gte: thirtyDaysAgo },
           },
         },
@@ -88,7 +74,6 @@ export async function GET() {
     const totalStats = await db
       .collection("recycling_entries")
       .aggregate([
-        { $match: { userId: session.user.id } },
         {
           $group: {
             _id: null,
@@ -102,9 +87,9 @@ export async function GET() {
 
     return NextResponse.json({
       user: {
-        name: user?.name,
-        email: user?.email,
-        points: user?.points || 0,
+        name: "Demo Viewer",
+        email: "demo@ecorewards.local",
+        points: totalStats[0]?.totalPoints || 0,
       },
       materialStats: materialStats.map((stat) => ({
         material: stat._id,

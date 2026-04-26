@@ -1,5 +1,3 @@
-import { auth } from "@/lib/auth"
-import { redirect } from "next/navigation"
 import { DashboardNav } from "@/components/dashboard-nav"
 
 export default async function DashboardLayout({
@@ -7,15 +5,15 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode
 }) {
-  const session = await auth()
-
-  if (!session?.user) {
-    redirect("/login")
-  }
-
   return (
     <div className="min-h-screen flex flex-col">
-      <DashboardNav user={session.user} />
+      <DashboardNav
+        user={{
+          name: "Demo Viewer",
+          email: "demo@ecorewards.local",
+          role: "admin",
+        }}
+      />
       <main className="flex-1 container mx-auto px-4 py-8">
         {children}
       </main>

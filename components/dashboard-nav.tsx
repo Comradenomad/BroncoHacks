@@ -2,7 +2,6 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { signOut } from "next-auth/react"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -13,7 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Recycle, LayoutDashboard, Plus, Trophy, Settings, LogOut, Shield } from "lucide-react"
+import { Recycle, LayoutDashboard, Plus, Trophy, Shield } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 interface DashboardNavProps {
@@ -95,20 +94,7 @@ export function DashboardNav({ user }: DashboardNavProps) {
               ))}
               <DropdownMenuSeparator />
             </div>
-            <DropdownMenuItem asChild>
-              <Link href="/dashboard/settings" className="flex items-center gap-2">
-                <Settings className="h-4 w-4" />
-                Settings
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              onClick={() => signOut({ callbackUrl: "/" })}
-              className="text-destructive focus:text-destructive"
-            >
-              <LogOut className="mr-2 h-4 w-4" />
-              Sign out
-            </DropdownMenuItem>
+            <DropdownMenuItem disabled>Demo mode active</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
