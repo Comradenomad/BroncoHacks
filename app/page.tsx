@@ -150,7 +150,7 @@ export default function LandingPage() {
               <Leaf className="h-4 w-4" />
               Join the sustainability movement
             </div>
-            <div className="hero-carousel-wrap mb-12 w-full">
+            <div className="hero-carousel-breakout mb-12">
               <div className="hero-carousel-mask">
                 <div className="hero-carousel-track">
                   {loopItems.map((event, index) => (
@@ -209,14 +209,20 @@ export default function LandingPage() {
         </div>
 
         <style jsx>{`
-          .hero-carousel-wrap {
+          .hero-carousel-breakout {
+            position: relative;
+            left: 50%;
+            right: 50%;
+            width: 100vw;
+            margin-left: -50vw;
+            margin-right: -50vw;
+            overflow: hidden;
             display: flex;
             justify-content: center;
           }
 
           .hero-carousel-mask {
-            width: 100%;
-            max-width: 1180px;
+            width: 100vw;
             overflow: hidden;
             padding: 1rem 0;
             mask-image: linear-gradient(
