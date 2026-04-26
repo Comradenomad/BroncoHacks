@@ -79,7 +79,7 @@ export default function LandingPage() {
       }
 
       if (frontLayer) {
-        frontLayer.style.transform = `translate(${x * 0.1}px, ${y * 0.1}px) rotate(-8deg)`
+        frontLayer.style.transform = `translate(${x * 0.1}px, ${y * 0.1}px) rotate(-6deg)`
       }
 
       frameRef.current = requestAnimationFrame(animate)
@@ -209,14 +209,14 @@ export default function LandingPage() {
             <img
               data-layer="mid"
               src="/hero-foreground-bottom.png"
-              alt="Smart bin preview"
-              className="absolute bottom-8 left-1/2 z-10 w-[220px] -translate-x-[92%] rotate-[2deg] rounded-3xl shadow-[0_30px_80px_rgba(0,0,0,0.35)] transition-transform duration-300 hover:scale-105 sm:w-[280px] sm:rotate-[4deg] md:bottom-12 md:w-[340px] lg:bottom-16 lg:left-[16%] lg:translate-x-0 lg:rotate-[6deg]"
+              alt="Bushes foreground"
+              className="absolute bottom-0 left-1/2 z-10 w-[250px] -translate-x-1/2 rotate-[1deg] rounded-3xl shadow-[0_24px_70px_rgba(0,0,0,0.28)] transition-transform duration-300 hover:scale-105 sm:w-[320px] md:w-[420px] lg:bottom-2 lg:left-[24%] lg:w-[520px] lg:-translate-x-0 lg:rotate-[3deg]"
             />
             <img
               data-layer="front"
               src="/hero-foreground-top.png"
-              alt="Analytics preview"
-              className="absolute bottom-36 left-1/2 z-20 w-[210px] -translate-x-[2%] -rotate-[2deg] rounded-3xl shadow-[0_35px_90px_rgba(0,0,0,0.4)] transition-transform duration-300 hover:scale-105 sm:w-[270px] sm:-rotate-[4deg] md:bottom-32 md:w-[360px] lg:bottom-28 lg:right-[12%] lg:left-auto lg:translate-x-0 lg:-rotate-[8deg]"
+              alt="Leaves foreground"
+              className="absolute top-24 right-4 z-20 w-[170px] rotate-[-2deg] rounded-3xl shadow-[0_35px_90px_rgba(0,0,0,0.35)] transition-transform duration-300 hover:scale-105 sm:top-28 sm:right-8 sm:w-[220px] md:top-24 md:right-12 md:w-[280px] lg:top-20 lg:right-[10%] lg:w-[340px] lg:rotate-[-6deg]"
             />
           </div>
         </div>
