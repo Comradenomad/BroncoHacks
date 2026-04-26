@@ -75,7 +75,7 @@ export default function RegisterPage() {
         <CardHeader className="text-center">
           <Link href="/" className="flex items-center justify-center gap-2 mb-4">
             <Recycle className="h-8 w-8 text-primary" />
-            <span className="text-xl font-bold">EcoRewards</span>
+            <span className="text-xl font-bold">BinTelligence</span>
           </Link>
           <CardTitle className="text-2xl">Create an account</CardTitle>
           <CardDescription>Start tracking your recycling journey</CardDescription>

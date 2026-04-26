@@ -43,7 +43,7 @@ export function DashboardNav({ user }: DashboardNavProps) {
         <div className="flex items-center gap-8">
           <Link href="/dashboard" className="flex items-center gap-2">
             <Recycle className="h-7 w-7 text-primary" />
-            <span className="text-lg font-bold">EcoRewards</span>
+            <span className="text-lg font-bold">BinTelligence</span>
           </Link>
           <nav className="hidden md:flex items-center gap-1">
             {navItems.map((item) => (
