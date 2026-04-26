@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { Bar } from "react-chartjs-2"
 import {
   BarElement,
@@ -19,6 +19,10 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend)
 
 export default function LandingPage() {
   const [events, setEvents] = useState<any[]>([])
+  const heroRef = useRef<HTMLElement | null>(null)
+  const frameRef = useRef<number | null>(null)
+  const targetRef = useRef({ x: 0, y: 0 })
+  const currentRef = useRef({ x: 0, y: 0 })
 
   useEffect(() => {
     let isActive = true
@@ -45,6 +49,66 @@ export default function LandingPage() {
     return () => {
       isActive = false
       clearInterval(interval)
+    }
+  }, [])
+
+  useEffect(() => {
+    const hero = heroRef.current
+    if (!hero) return
+
+    const isMobile = window.innerWidth < 768
+    if (isMobile) return
+
+    const backgroundLayer = hero.querySelector<HTMLElement>("[data-layer='bg']")
+    const midLayer = hero.querySelector<HTMLElement>("[data-layer='mid']")
+    const frontLayer = hero.querySelector<HTMLElement>("[data-layer='front']")
+
+    const animate = () => {
+      currentRef.current.x += (targetRef.current.x - currentRef.current.x) * 0.08
+      currentRef.current.y += (targetRef.current.y - currentRef.current.y) * 0.08
+
+      const x = currentRef.current.x
+      const y = currentRef.current.y
+
+      if (backgroundLayer) {
+        backgroundLayer.style.transform = `translate(${x * 0.02}px, ${y * 0.02}px) scale(1.05)`
+      }
+
+      if (midLayer) {
+        midLayer.style.transform = `translate(${x * 0.05}px, ${y * 0.05}px) rotate(6deg)`
+      }
+
+      if (frontLayer) {
+        frontLayer.style.transform = `translate(${x * 0.1}px, ${y * 0.1}px) rotate(-8deg)`
+      }
+
+      frameRef.current = requestAnimationFrame(animate)
+    }
+
+    const handleMouseMove = (event: MouseEvent) => {
+      const rect = hero.getBoundingClientRect()
+      const offsetX = event.clientX - (rect.left + rect.width / 2)
+      const offsetY = event.clientY - (rect.top + rect.height / 2)
+
+      targetRef.current.x = offsetX
+      targetRef.current.y = offsetY
+    }
+
+    const handleMouseLeave = () => {
+      targetRef.current.x = 0
+      targetRef.current.y = 0
+    }
+
+    hero.addEventListener("mousemove", handleMouseMove)
+    hero.addEventListener("mouseleave", handleMouseLeave)
+    frameRef.current = requestAnimationFrame(animate)
+
+    return () => {
+      hero.removeEventListener("mousemove", handleMouseMove)
+      hero.removeEventListener("mouseleave", handleMouseLeave)
+      if (frameRef.current) {
+        cancelAnimationFrame(frameRef.current)
+      }
     }
   }, [])
 
@@ -124,8 +188,14 @@ export default function LandingPage() {
       </header>
 
       {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-        <div className="absolute inset-0 z-0">
+      <section
+        ref={heroRef}
+        className="relative min-h-screen flex items-center justify-center overflow-hidden"
+      >
+        <div
+          data-layer="bg"
+          className="absolute inset-0 z-0 will-change-transform transition-transform duration-200 md:scale-105"
+        >
           <img
             src="/hero-background.png"
             alt="Recycling background"
@@ -137,14 +207,16 @@ export default function LandingPage() {
         <div className="absolute inset-0 z-10 pointer-events-none">
           <div className="relative h-full w-full max-w-7xl mx-auto">
             <img
+              data-layer="mid"
               src="/hero-foreground-bottom.png"
               alt="Smart bin preview"
-              className="absolute bottom-10 left-1/2 w-[260px] -translate-x-[95%] translate-y-4 rotate-[3deg] rounded-3xl shadow-2xl transition-transform duration-300 hover:scale-105 sm:w-[320px] sm:rotate-[5deg] lg:bottom-16 lg:left-[18%] lg:w-[360px] lg:translate-x-0 lg:rotate-[6deg] z-10"
+              className="absolute bottom-8 left-1/2 z-10 w-[220px] -translate-x-[92%] rotate-[2deg] rounded-3xl shadow-[0_30px_80px_rgba(0,0,0,0.35)] transition-transform duration-300 hover:scale-105 sm:w-[280px] sm:rotate-[4deg] md:bottom-12 md:w-[340px] lg:bottom-16 lg:left-[16%] lg:translate-x-0 lg:rotate-[6deg]"
             />
             <img
+              data-layer="front"
               src="/hero-foreground-top.png"
               alt="Analytics preview"
-              className="absolute bottom-44 left-1/2 w-[250px] -translate-x-[5%] -translate-y-2 -rotate-[4deg] rounded-3xl shadow-2xl transition-transform duration-300 hover:scale-105 sm:w-[310px] sm:-rotate-[6deg] lg:bottom-28 lg:left-auto lg:right-[14%] lg:w-[380px] lg:translate-x-0 lg:-rotate-[8deg] z-20"
+              className="absolute bottom-36 left-1/2 z-20 w-[210px] -translate-x-[2%] -rotate-[2deg] rounded-3xl shadow-[0_35px_90px_rgba(0,0,0,0.4)] transition-transform duration-300 hover:scale-105 sm:w-[270px] sm:-rotate-[4deg] md:bottom-32 md:w-[360px] lg:bottom-28 lg:right-[12%] lg:left-auto lg:translate-x-0 lg:-rotate-[8deg]"
             />
           </div>
         </div>
