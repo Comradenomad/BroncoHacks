@@ -58,7 +58,7 @@ export default function LandingPage() {
           confidence: 0,
           id: `placeholder-${index}`,
         }))
-  const loopItems = [...heroItems, ...heroItems]
+  const loopItems = [...heroItems, ...heroItems, ...heroItems]
 
   const eventCounts = events.reduce(
     (acc, event) => {
@@ -118,7 +118,7 @@ export default function LandingPage() {
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
             <Recycle className="h-8 w-8 text-white" />
-            <span className="text-xl font-bold text-white">EcoRewards</span>
+            <span className="text-xl font-bold text-white">BinTelligence</span>
           </Link>
           <nav className="flex items-center gap-4">
             <Link href="/login">
@@ -144,46 +144,43 @@ export default function LandingPage() {
           <div className="absolute inset-0 bg-black/45" />
         </div>
 
-        <div className="absolute inset-x-0 bottom-8 z-20 overflow-hidden md:bottom-12">
-          <div className="carousel-mask">
-            <div className="carousel-track">
-              {loopItems.map((event, index) => (
-                <div
-                  key={`${event.id || event._id || event.scan_id || index}-${index}`}
-                  className={`scan-card ${index % 2 === 0 ? "tilt-left" : "tilt-right"} ${
-                    index % 5 === 2 ? "featured" : "side"
-                  }`}
-                >
-                  <div className="scan-image-wrap">
-                    {event.image ? (
-                      <img
-                        src={`data:image/jpeg;base64,${event.image}`}
-                        alt={event.item_type || "Trash scan"}
-                        className="scan-image"
-                      />
-                    ) : (
-                      <div className="scan-placeholder">Waiting for scan</div>
-                    )}
-                  </div>
-                  <div className="scan-meta">
-                    <p className="scan-type">{event.item_type || "Unknown item"}</p>
-                    {event.confidence ? (
-                      <p className="scan-confidence">
-                        {Math.round((event.confidence || 0) * 100)}% confidence
-                      </p>
-                    ) : null}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
         <div className="container mx-auto px-4 relative z-30 py-32">
-          <div className="max-w-3xl mx-auto text-center">
+          <div className="max-w-6xl mx-auto flex min-h-[80vh] flex-col items-center justify-center text-center">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/15 text-white text-sm font-medium mb-6 backdrop-blur-sm">
               <Leaf className="h-4 w-4" />
               Join the sustainability movement
+            </div>
+            <div className="hero-carousel-breakout mb-12">
+              <div className="hero-carousel-mask">
+                <div className="hero-carousel-track">
+                  {loopItems.map((event, index) => (
+                    <div
+                      key={`${event.id || event._id || event.scan_id || index}-${index}`}
+                      className="hero-scan-card"
+                    >
+                      <div className="hero-scan-image-wrap">
+                        {event.image ? (
+                          <img
+                            src={`data:image/jpeg;base64,${event.image}`}
+                            alt={event.item_type || "Trash scan"}
+                            className="hero-scan-image"
+                          />
+                        ) : (
+                          <div className="hero-scan-placeholder">Waiting for scan</div>
+                        )}
+                      </div>
+                      <div className="hero-scan-meta">
+                        <p className="hero-scan-type">{event.item_type || "Unknown item"}</p>
+                        {event.confidence ? (
+                          <p className="hero-scan-confidence">
+                            {Math.round((event.confidence || 0) * 100)}% confidence
+                          </p>
+                        ) : null}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-white mb-6 text-balance">
               Turn Your Recycling Into Rewards
@@ -212,83 +209,77 @@ export default function LandingPage() {
         </div>
 
         <style jsx>{`
-          .carousel-mask {
+          .hero-carousel-breakout {
             position: relative;
+            left: 50%;
+            width: 100vw;
+            transform: translateX(-50%);
+            overflow: hidden;
+          }
+
+          .hero-carousel-mask {
+            width: 100vw;
             overflow: hidden;
             padding: 1rem 0;
+            margin: 0;
             mask-image: linear-gradient(
               to right,
               transparent 0%,
-              rgba(0, 0, 0, 1) 12%,
-              rgba(0, 0, 0, 1) 88%,
+              rgba(0, 0, 0, 1) 10%,
+              rgba(0, 0, 0, 1) 90%,
               transparent 100%
             );
             -webkit-mask-image: linear-gradient(
               to right,
               transparent 0%,
-              rgba(0, 0, 0, 1) 12%,
-              rgba(0, 0, 0, 1) 88%,
+              rgba(0, 0, 0, 1) 10%,
+              rgba(0, 0, 0, 1) 90%,
               transparent 100%
             );
           }
 
-          .carousel-track {
+          .hero-carousel-track {
             display: flex;
-            align-items: flex-end;
-            gap: 1.25rem;
+            justify-content: flex-start;
+            align-items: center;
+            gap: 1.5rem;
             width: max-content;
-            animation: hero-carousel 20s linear infinite;
+            margin: 0;
+            padding: 0;
+            animation: hero-carousel-loop 20s linear infinite;
             will-change: transform;
           }
 
-          .scan-card {
-            width: 180px;
+          .hero-scan-card {
+            width: 240px;
+            height: 320px;
             flex: 0 0 auto;
-            border-radius: 1.5rem;
             overflow: hidden;
+            border-radius: 1.5rem;
             background: rgba(255, 255, 255, 0.14);
-            backdrop-filter: blur(12px);
-            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.28);
             border: 1px solid rgba(255, 255, 255, 0.16);
-            transition: transform 0.3s ease;
+            backdrop-filter: blur(14px);
+            box-shadow: 0 18px 50px rgba(0, 0, 0, 0.28);
           }
 
-          .scan-card:hover {
-            transform: translateY(-6px) scale(1.04);
-          }
-
-          .scan-card.featured {
-            transform: scale(1.04);
-          }
-
-          .scan-card.side {
-            transform: scale(0.94);
-            opacity: 0.92;
-          }
-
-          .scan-card.tilt-left {
-            rotate: -3deg;
-          }
-
-          .scan-card.tilt-right {
-            rotate: 3deg;
-          }
-
-          .scan-image-wrap {
+          .hero-scan-image-wrap {
+            display: flex;
+            align-items: center;
+            justify-content: center;
             width: 100%;
-            height: 170px;
+            height: 230px;
             overflow: hidden;
             background: rgba(255, 255, 255, 0.08);
           }
 
-          .scan-image {
+          .hero-scan-image {
             width: 100%;
             height: 100%;
             object-fit: cover;
             display: block;
           }
 
-          .scan-placeholder {
+          .hero-scan-placeholder {
             width: 100%;
             height: 100%;
             display: flex;
@@ -298,78 +289,77 @@ export default function LandingPage() {
             text-align: center;
             color: rgba(255, 255, 255, 0.8);
             font-size: 0.95rem;
-            background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.03));
+            background: linear-gradient(
+              135deg,
+              rgba(255, 255, 255, 0.12),
+              rgba(255, 255, 255, 0.04)
+            );
           }
 
-          .scan-meta {
-            padding: 0.9rem 1rem 1rem;
+          .hero-scan-meta {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            height: 90px;
+            padding: 1rem;
             text-align: center;
           }
 
-          .scan-type {
+          .hero-scan-type {
             color: white;
             font-weight: 700;
             text-transform: capitalize;
             line-height: 1.2;
+            font-size: 1rem;
           }
 
-          .scan-confidence {
+          .hero-scan-confidence {
             margin-top: 0.35rem;
             color: rgba(255, 255, 255, 0.75);
             font-size: 0.82rem;
           }
 
-          @keyframes hero-carousel {
+          @keyframes hero-carousel-loop {
             from {
-              transform: translateX(0);
+              transform: translateX(-25%);
             }
             to {
-              transform: translateX(calc(-50% - 0.625rem));
+              transform: translateX(-75%);
             }
           }
 
           @media (max-width: 767px) {
-            .carousel-mask {
+            .hero-carousel-mask {
+              max-width: 100%;
               padding: 0.5rem 0;
             }
 
-            .carousel-track {
-              gap: 0.85rem;
-              animation-duration: 18s;
+            .hero-carousel-track {
+              gap: 1rem;
+              animation-duration: 20s;
             }
 
-            .scan-card {
-              width: 128px;
+            .hero-scan-card {
+              width: 170px;
+              height: 240px;
               border-radius: 1.1rem;
             }
 
-            .scan-image-wrap {
-              height: 118px;
+            .hero-scan-image-wrap {
+              height: 165px;
             }
 
-            .scan-card.featured,
-            .scan-card.side {
-              transform: scale(0.96);
+            .hero-scan-meta {
+              height: 75px;
+              padding: 0.8rem;
             }
 
-            .scan-card.tilt-left {
-              rotate: -1.5deg;
-            }
-
-            .scan-card.tilt-right {
-              rotate: 1.5deg;
-            }
-
-            .scan-meta {
-              padding: 0.7rem 0.75rem 0.85rem;
-            }
-
-            .scan-type {
+            .hero-scan-type {
               font-size: 0.9rem;
             }
 
-            .scan-confidence {
-              font-size: 0.75rem;
+            .hero-scan-confidence {
+              font-size: 0.72rem;
             }
           }
         `}</style>
@@ -528,7 +518,7 @@ export default function LandingPage() {
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-2">
               <Recycle className="h-5 w-5 text-primary" />
-              <span className="font-semibold text-foreground">EcoRewards</span>
+              <span className="font-semibold text-foreground">BinTelligence</span>
             </div>
             <p className="text-sm text-muted-foreground">
               Making recycling rewarding, one item at a time.
