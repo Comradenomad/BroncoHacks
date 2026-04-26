@@ -58,7 +58,7 @@ export default function LandingPage() {
           confidence: 0,
           id: `placeholder-${index}`,
         }))
-  const loopItems = [...heroItems, ...heroItems, ...heroItems]
+  const loopItems = [...heroItems, ...heroItems, ...heroItems, ...heroItems]
 
   const eventCounts = events.reduce(
     (acc, event) => {
@@ -210,11 +210,9 @@ export default function LandingPage() {
 
         <style jsx>{`
           .hero-carousel-breakout {
-            position: relative;
-            left: 50%;
             width: 100vw;
-            transform: translateX(-50%);
-            overflow: hidden;
+            margin-left: calc(50% - 50vw);
+            align-self: flex-start;
           }
 
           .hero-carousel-mask {
@@ -225,15 +223,15 @@ export default function LandingPage() {
             mask-image: linear-gradient(
               to right,
               transparent 0%,
-              rgba(0, 0, 0, 1) 10%,
-              rgba(0, 0, 0, 1) 90%,
+              rgba(0, 0, 0, 1) 15%,
+              rgba(0, 0, 0, 1) 85%,
               transparent 100%
             );
             -webkit-mask-image: linear-gradient(
               to right,
               transparent 0%,
-              rgba(0, 0, 0, 1) 10%,
-              rgba(0, 0, 0, 1) 90%,
+              rgba(0, 0, 0, 1) 15%,
+              rgba(0, 0, 0, 1) 85%,
               transparent 100%
             );
           }
@@ -324,7 +322,7 @@ export default function LandingPage() {
               transform: translateX(-33.33%);
             }
             to {
-              transform: translateX(-66.66%);
+              transform: translateX(-50%);
             }
           }
 
@@ -365,6 +363,7 @@ export default function LandingPage() {
         `}</style>
       </section>
 
+      {/* Live Feed Section */}
       <section className="py-20 bg-card">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
